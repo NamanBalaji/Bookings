@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/NamanBalaji/bookings/internal/config"
 	"github.com/NamanBalaji/bookings/internal/handlers"
+	"github.com/NamanBalaji/bookings/internal/helpers"
 	"github.com/NamanBalaji/bookings/internal/models"
 	"github.com/NamanBalaji/bookings/internal/render"
 	"github.com/alexedwards/scs/v2"
@@ -18,6 +20,8 @@ const portNumber = ":8080"
 
 var app config.AppConfig
 var session *scs.SessionManager
+var infoLog *log.Logger
+var errorLog *log.Logger
 
 // main is the main function
 func main() {
@@ -40,11 +44,17 @@ func main() {
 }
 
 func run() error {
-
-	//what am i going to put in the session
+	// what am I going to put in the session
 	gob.Register(models.Reservation{})
+
 	// change this to true when in production
 	app.InProduction = false
+
+	infoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+	app.InfoLog = infoLog
+
+	errorLog = log.New(os.Stdout, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+	app.ErrorLog = errorLog
 
 	// set up the session
 	session = scs.New()
@@ -66,7 +76,8 @@ func run() error {
 
 	repo := handlers.NewRepo(&app)
 	handlers.NewHandlers(repo)
-
 	render.NewTemplates(&app)
+	helpers.NewHelpers(&app)
+
 	return nil
 }
