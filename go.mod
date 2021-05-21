@@ -23,6 +23,7 @@ require (
 	github.com/jackc/pgconn v1.8.1 // indirect
 	github.com/jackc/pgx/v4 v4.11.0 // indirect
 	github.com/jmoiron/sqlx v1.3.4 // indirect
+	github.com/joho/godotenv v1.3.0 // indirect
 	github.com/justinas/nosurf v1.1.1
 	github.com/spf13/cobra v1.1.3 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
