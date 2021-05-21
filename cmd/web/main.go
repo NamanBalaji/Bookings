@@ -15,6 +15,7 @@ import (
 	"github.com/NamanBalaji/bookings/internal/models"
 	"github.com/NamanBalaji/bookings/internal/render"
 	"github.com/alexedwards/scs/v2"
+	"github.com/joho/godotenv"
 )
 
 const portNumber = ":8080"
@@ -32,7 +33,7 @@ func main() {
 	}
 
 	defer db.SQL.Close()
-	fmt.Println(fmt.Sprintf("Staring application on port %s", portNumber))
+	fmt.Printf("Staring application on port %s", portNumber)
 
 	srv := &http.Server{
 		Addr:    portNumber,
@@ -49,6 +50,10 @@ func run() (*driver.DB, error) {
 	// what am I going to put in the session
 	gob.Register(models.Reservation{})
 
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("failed to load environment variables")
+	}
 	// change this to true when in production
 	app.InProduction = false
 
@@ -69,7 +74,9 @@ func run() (*driver.DB, error) {
 
 	// connect to database
 	log.Println("Connecting to database...")
-	db, err := driver.ConnectSQL(`host=localhot port=5432 dbname=bookings_development user=postgres password="(munni1sheela2)"`)
+
+	dsn := fmt.Sprintf("host=localhost port=5432 dbname=bookings_development user=postgres password=%s", os.Getenv("POSTGRES_PASSWORD"))
+	db, err := driver.ConnectSQL(dsn)
 	if err != nil {
 		log.Fatal("Cannot connect to database dying....")
 	}
@@ -85,7 +92,7 @@ func run() (*driver.DB, error) {
 
 	repo := handlers.NewRepo(&app, db)
 	handlers.NewHandlers(repo)
-	render.NewTemplates(&app)
+	render.NewRenderer(&app)
 	helpers.NewHelpers(&app)
 
 	return db, nil
